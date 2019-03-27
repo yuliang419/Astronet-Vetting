@@ -91,7 +91,7 @@ def find_tce(kepid, sector):
     raise ValueError("{} not found in files: {}".format(kepid, filenames))
 
 
-def plot_tce(kepid, sector, true, pred, save_dir='astronet/plots/'):
+def plot_tce(kepid, sector, depth_change, true, pred, save_dir='astronet/plots/'):
     ex = find_tce(kepid, sector)
     global_view = np.array(ex.features.feature["global_view"].float_list.value)
     local_view = np.array(ex.features.feature["local_view"].float_list.value)
@@ -102,7 +102,7 @@ def plot_tce(kepid, sector, true, pred, save_dir='astronet/plots/'):
     axes[1].plot(local_view, ".")
     axes[2].plot(secondary_view, ".")
 
-    plt.title(true+' - '+str(pred) + ', ' + str(sector))
+    plt.title(true+' - '+str(pred) + ', depth change=' + str(depth_change) + ', ' + str(sector))
     plt.savefig(save_dir + str(kepid) + '.png', bbox_inches='tight')
     plt.close('all')
 
@@ -187,8 +187,10 @@ def main(_):
 
     y_pred_average = []
     is_pc = []
+    is_eb = []
     cnt = 0
     num_tces = len(y_pred)
+    print("Total %s TCEs" % num_tces)
 
     for tce in y_pred:
         # Plotting takes quite long. There's probably a better way to do it.
@@ -198,19 +200,16 @@ def main(_):
         disposition = true_disp[tce]
         y_true = disposition in ['PC']
         is_pc.append(disposition == 'PC')
+        is_eb.append(disposition == 'EB')
         average_pred = np.mean(y_pred[tce])
 
-        if average_pred >= 0.4:
-            label = "PC/EB"
-        else:
-            label = "junk"
-
-        if FLAGS.plot:
+        if FLAGS.plot and average_pred < 0.1 and disposition == 'PC':
             kepid, sector = tce.split('-')
             ex = find_tce(int(kepid), int(sector))
             plot_tce(ex.features.feature["tic_id"].int64_list.value[0],
                      ex.features.feature['Sectors'].int64_list.value[0],
-                     label, average_pred)
+                     ex.features.feature['depth_change'].float_list.value[0],
+                     disposition, average_pred)
 
         y_pred_average.append([y_true, average_pred])
         cnt += 1
@@ -219,19 +218,22 @@ def main(_):
     y_true = np.array(y_pred_average)[:, 0]
     y_pred = np.array(y_pred_average)[:, 1]
     is_pc = np.array(is_pc)
+    is_eb = np.array(is_eb)
 
     for t in threshold:
       tp = len(np.where((y_true == 1) & (y_pred >= t))[0])
       fp = len(np.where((y_true == 0) & (y_pred >= t))[0])
       fn = len(np.where((y_true == 1) & (y_pred < t))[0])
-      tn = fn = len(np.where((y_true == 0) & (y_pred < t))[0])
-      print(float(fp) / (tn+fp))
+      tn = len(np.where((y_true == 0) & (y_pred < t))[0])
+
       precision = float(tp) / (tp + fp)
       recall = float(tp) / (tp + fn)
 
       num_pc = len(np.where((is_pc == True) & (y_pred < t))[0])
+      num_eb = len(np.where((is_eb == True) & (y_pred >= t))[0])
 
       print("Threshold %s: precision=%s, recall=%s. Number of PCs in FNs = %s" % (t, precision, recall, num_pc))
+      print("Number of FPs = %s, number of EBs in FPs = %s" % (fp, num_eb))
 
     np.savetxt('true_vs_pred_'+FLAGS.suffix+'.txt', np.array(y_pred_average), fmt=['%f', '%4.3f'])
     pc_count = len(np.where(is_pc == True)[0])
