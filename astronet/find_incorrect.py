@@ -203,7 +203,7 @@ def main(_):
         is_eb.append(disposition == 'EB')
         average_pred = np.mean(y_pred[tce])
 
-        if FLAGS.plot and disposition == 'PC':
+        if FLAGS.plot and disposition == 'PC' and average_pred < 0.1:
             kepid, sector = tce.split('-')
             ex = find_tce(int(kepid), int(sector))
             plot_tce(ex.features.feature["tic_id"].int64_list.value[0],

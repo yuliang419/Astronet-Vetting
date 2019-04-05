@@ -307,7 +307,7 @@ def create_input_list():
     tf.logging.info("Read TCE CSV file with %d rows.", len(tce_table))
 
     # replace "IS" and "V" labels with "J" for junk
-    tce_table['Disposition'] = tce_table['Disposition'].replace({'IS': 'J', 'V': 'J'})
+    tce_table['Disposition'] = tce_table['Disposition'].replace({'IS': 'J', 'V': 'J', 'O': 'J'})
     num_tces = len(tce_table)
     tf.logging.info("Filtered to %d TCEs", num_tces)
 

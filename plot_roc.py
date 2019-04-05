@@ -6,7 +6,6 @@ plt.rc('font', family='serif')
 
 y_true_vanilla, y_pred_vanilla = np.loadtxt('true_vs_pred_plain.txt', unpack=True)
 y_true_dc, y_pred_dc = np.loadtxt('true_vs_pred_dc.txt', unpack=True)
-# y_true_tmag, y_pred_tmag = np.loadtxt('true_vs_pred_dc_se.txt', unpack=True)
 y_true_se, y_pred_se = np.loadtxt('true_vs_pred_se.txt', unpack=True)
 y_true_all, y_pred_all = np.loadtxt('true_vs_pred_dc_se.txt', unpack=True)
 
