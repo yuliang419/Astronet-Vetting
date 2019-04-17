@@ -21,7 +21,11 @@ For shorter summaries, see:
 
 ## Citation
 
-I'm working on a paper that summarizes this code, which will also be a chapter of my thesis. For now, please cite the original Shallue & Vanderburg paper:
+A paper that summarizes this code is available [here](https://arxiv.org/abs/1904.02726). The paper has been submitted to AJ and is currently under review. Please cite it if you make use of this code:
+
+Yu, L. et al. (2019). Identifying Exoplanets with Deep Learning III: Automated Triage and Vetting of TESS Candidates. arXiv:1904.02726
+
+See also the original Shallue & Vanderburg paper:
 
 Shallue, C. J., & Vanderburg, A. (2018). Identifying Exoplanets with Deep
 Learning: A Five-planet Resonant Chain around Kepler-80 and an Eighth Planet
@@ -130,7 +134,7 @@ Then, run `make_catalog.py` as usual to create a CSV file with the rest of the c
 
 ### Process TESS Data
 
-**All the following steps can be run on any computer that has TESS h5 files stored in a single folder, divided by camera and ccd.**
+**All the following steps can be run on any computer that has TESS h5 files stored in a single folder, divided by sector. If you don't have access to the original h5 files, I have included all the TFRecords used in my paper under `astronet/tfrecords` so you can skip the training set generation step.**
 
 To train a model to identify exoplanets, you will need to provide TensorFlow
 with training data in
@@ -143,7 +147,7 @@ the training set. Each `tf.Example` proto will contain the following light curve
 representations:
 
 * `global_view`: Vector of length 201: a "global view" of the TCE.
-* `local_view`: Vector of length 81: a "local view" of the TCE.
+* `local_view`: Vector of length 61: a "local view" of the TCE.
 
 In addition, each `tf.Example` will contain the value of each column in the
 input TCE CSV file, including transit and stellar parameters.
