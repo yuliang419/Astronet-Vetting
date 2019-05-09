@@ -287,7 +287,9 @@ You can train a set of 10 models with random initializations and average their o
 ```bash
 ./astronet/ensemble_train.sh ${MODEL_DIR} 14000 ${TFRECORD_DIR}
 ```
-The 14000 here is the number of train steps I used for each model. The code will produce 10 subdirectories under `${MODEL_DIR}`.
+The 14000 here is the number of train steps I used for each model. The code will produce 10 subdirectories under `${MODEL_DIR}`. 
+
+Four fully trained, averaged models can be found under `astronet/models_final`. `model_dc_se` is the final version presented in my paper, with secondary eclipses and depth change included in the model. `model_plain` is the original `AstroNet` architecture without the two newly added features. `model_dc` and `model_se` are models with only depth change or only secondary eclipses added.
 
 ### Evaluate an AstroNet Model
 

@@ -185,7 +185,7 @@ def _process_tce(tce):
 
 
   time, flux, flux_small, flux_big = preprocess.read_and_process_light_curve(tce.tic_id, FLAGS.tess_data_dir,
-                                                                     sector=tce.Sectors)
+                                                                     sector=tce.Sectors, is_multi=tce.is_multi)
   time_small = time[:]
   time_big = time[:]
   time, flux = preprocess.phase_fold_and_sort_light_curve(
@@ -310,6 +310,10 @@ def create_input_list():
     tce_table['Disposition'] = tce_table['Disposition'].replace({'IS': 'J', 'V': 'J', 'O': 'J'})
     num_tces = len(tce_table)
     tf.logging.info("Filtered to %d TCEs", num_tces)
+
+    multisector_tces = tce_table[tce_table.duplicated(['tic_id'])]
+    is_multi = [tic in multisector_tces for tic in tce_table['tic_id'].values]
+    tce_table['is_multi'] = is_multi
 
     return tce_table
 
